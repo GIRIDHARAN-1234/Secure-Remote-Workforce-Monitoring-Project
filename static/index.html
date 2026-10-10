@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelEdge – Secure Remote Workforce Monitoring Framework</title>
+  <meta name="description" content="Centralized Zero Trust endpoint security, posture evaluation, explainable risk scoring, and threat detection for remote workforce environments.">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/css/styles.css">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            cyber: {
+              dark: '#090d16',
+              card: '#0f172a',
+              border: '#1e293b',
+              cyan: '#06b6d4',
+              teal: '#14b8a6',
+              amber: '#f59e0b',
+              rose: '#f43f5e'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#090d16] text-slate-100 min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-white">
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-md w-full pointer-events-none *:pointer-events-auto"></div>
+
+  <!-- ================= AUTH VIEW ================= -->
+  <div id="auth-wrapper" class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-[#090d16] to-[#040711]">
+    <!-- Cyber background grid lines -->
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none"></div>
+
+    <div class="w-full max-w-xl glass-panel-glow rounded-2xl p-8 relative z-10 shadow-2xl">
+      <!-- Branding Header -->
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-400 text-xs font-semibold mb-3">
+          <span class="w-2 h-2 rounded-full bg-cyan-400 pulse-dot"></span>
+          Threat Detection & Security Monitoring Track
+        </div>
+        <h1 class="text-3xl font-black tracking-tight text-white flex items-center justify-center gap-2">
+          <span class="text-cyan-400">🛡 Sentinel</span>Edge
+        </h1>
+        <p class="text-xs text-slate-400 mt-1">Secure Remote Workforce Monitoring & Zero Trust Posture Framework</p>
+      </div>
+
+      <!-- Demo Credentials One-Click Box -->
+      <div class="mb-6 p-4 rounded-xl bg-slate-900/90 border border-slate-700/60 text-xs">
+        <div class="flex items-center justify-between mb-2">
+          <span class="font-bold text-slate-300 uppercase tracking-wider text-[11px]">⚡ One-Click Demo Credentials</span>
+          <span class="text-[10px] text-cyan-400">Click role to auto-fill</span>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <button type="button" class="demo-creds-btn p-2 rounded bg-purple-950/40 hover:bg-purple-900/60 border border-purple-700/50 text-left transition" data-role="Admin" data-email="admin@sentineledge.io" data-pwd="Admin@12345!">
+            <div class="font-bold text-purple-300">Admin</div>
+            <div class="text-[10px] text-slate-400 truncate">admin@sentineledge.io</div>
+          </button>
+          <button type="button" class="demo-creds-btn p-2 rounded bg-cyan-950/40 hover:bg-cyan-900/60 border border-cyan-700/50 text-left transition" data-role="Analyst" data-email="analyst@sentineledge.io" data-pwd="Analyst@12345!">
+            <div class="font-bold text-cyan-300">Analyst</div>
+            <div class="text-[10px] text-slate-400 truncate">analyst@sentineledge.io</div>
+          </button>
+          <button type="button" class="demo-creds-btn p-2 rounded bg-slate-800/80 hover:bg-slate-700 border border-slate-600 text-left transition" data-role="Viewer" data-email="viewer@sentineledge.io" data-pwd="Viewer@12345!">
+            <div class="font-bold text-slate-300">Viewer</div>
+            <div class="text-[10px] text-slate-400 truncate">viewer@sentineledge.io</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Auth Tabs -->
+      <div class="flex border-b border-slate-800 mb-6">
+        <button id="tab-btn-login" class="auth-tab-btn flex-1 pb-3 text-sm font-semibold border-b-2 border-cyan-500 text-cyan-400" data-tab="login">Sign In</button>
+        <button id="tab-btn-register" class="auth-tab-btn flex-1 pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200" data-tab="register">Register Operator</button>
+      </div>
+
+      <!-- LOGIN SECTION -->
+      <div id="login-section">
+        <form id="login-form" class="space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Corporate Email Address</label>
+            <input type="email" id="login-email" required value="admin@sentineledge.io" class="w-full px-3.5 py-2.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-cyan-500 transition" placeholder="name@sentineledge.io">
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-xs font-medium text-slate-300">Password</label>
+              <a href="#" id="forgot-password-link" class="text-xs text-cyan-400 hover:underline">Forgot password?</a>
+            </div>
+            <input type="password" id="login-password" required value="Admin@12345!" class="w-full px-3.5 py-2.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-cyan-500 transition">
+          </div>
+
+          <button type="submit" id="btn-submit-login" class="w-full py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold text-sm rounded-lg shadow-lg shadow-cyan-950/50 transition">
+            Authenticate & Launch Console
+          </button>
+        </form>
+      </div>
+
+      <!-- REGISTER SECTION -->
+      <div id="register-section" class="hidden">
+        <form id="register-form" class="space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Operator Full Name</label>
+            <input type="text" id="register-name" required class="w-full px-3.5 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-cyan-500" placeholder="Agent John">
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Corporate Email Address</label>
+            <input type="email" id="register-email" required class="w-full px-3.5 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-cyan-500" placeholder="john@sentineledge.io">
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Desired Security Role</label>
+            <select id="register-role" class="w-full px-3.5 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-cyan-500">
+              <option value="analyst">Security Analyst (Acknowledge alerts, export reports)</option>
+              <option value="viewer">Auditor / Viewer (Read-only)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Password (Min 10 chars, Upper, Lower, Digit, Symbol)</label>
+            <input type="password" id="register-password" required class="w-full px-3.5 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-cyan-500" placeholder="••••••••••••">
+            
+            <!-- Live Password Strength Meter -->
+            <div class="mt-2">
+              <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                <div id="pwd-strength-bar" class="w-0 h-full bg-rose-500 transition-all duration-300"></div>
+              </div>
+              <div id="pwd-strength-text" class="text-xs text-slate-400 mt-1">Enter password to test strength</div>
+            </div>
+          </div>
+
+          <button type="submit" id="btn-submit-register" class="w-full py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold text-sm rounded-lg shadow-lg shadow-cyan-950/50 transition">
+            Create Operator Account
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MAIN APP VIEW ================= -->
+  <div id="app-wrapper" class="min-h-screen flex flex-col hidden">
+    <!-- Top Demo Banner -->
+    <header class="bg-gradient-to-r from-slate-950 via-cyan-950/50 to-slate-950 border-b border-cyan-900/40 px-4 py-2 flex flex-wrap items-center justify-between text-xs">
+      <div class="flex items-center gap-2">
+        <span class="px-2 py-0.5 rounded font-mono font-bold bg-cyan-900/80 text-cyan-300 border border-cyan-700/50">DEMO MODE</span>
+        <span class="text-slate-300 hidden sm:inline">Simulated remote workforce endpoint telemetry & Zero Trust policy evaluation engine.</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="btn-trigger-drift" class="px-2.5 py-1 rounded bg-amber-950/60 hover:bg-amber-900/80 text-amber-300 border border-amber-700/50 font-semibold transition flex items-center gap-1.5">
+          <span>⚡ Mutate Drift</span>
+        </button>
+        <a href="/docs" target="_blank" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-semibold transition">
+          OpenAPI Docs ↗
+        </a>
+      </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+      <!-- SIDEBAR NAVIGATION -->
+      <aside class="w-72 bg-[#0b101b] border-r border-slate-800/80 flex flex-col justify-between shrink-0 overflow-y-auto">
+        <div>
+          <!-- Brand -->
+          <div class="p-5 border-b border-slate-800/60 flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-lg font-black text-white shadow-lg shadow-cyan-500/20">
+              🛡
+            </div>
+            <div>
+              <div class="font-black text-base text-white tracking-tight leading-none">Sentinel<span class="text-cyan-400">Edge</span></div>
+              <div class="text-[10px] text-slate-400 font-medium tracking-wider uppercase mt-1">Zero Trust Posture Monitor</div>
+            </div>
+          </div>
+
+          <!-- Nav Items Grouped into 3 Categories -->
+          <nav class="p-3 space-y-4 text-sm font-medium">
+
+            <!-- CATEGORY 1: DAILY MONITORING -->
+            <div>
+              <div class="px-3 pb-1 text-[10px] font-extrabold uppercase tracking-wider text-cyan-400/90 flex items-center justify-between">
+                <span>1. Daily Monitoring</span>
+                <span class="text-[9px] text-slate-500 font-normal">Core</span>
+              </div>
+              <div class="space-y-1">
+                <a href="#" class="nav-link flex items-start gap-2.5 px-3 py-2 rounded-lg transition text-slate-400 hover:text-slate-200 hover:bg-slate-800/40" data-page="dashboard">
+                  <span class="text-base mt-0.5">📊</span>
+                  <div class="min-w-0">
+                    <div class="font-semibold text-slate-200 leading-tight">Posture Dashboard</div>
+                    <div class="text-[10px] text-slate-400 leading-tight">Live fleet score & security health</div>
+                  </div>
+                </a>
+                <a href="#" class="nav-link flex items-start gap-2.5 px-3 py-2 rounded-lg transition text-slate-400 hover:text-slate-200 hover:bg-slate-800/40" data-page="devices">
+                  <span class="text-base mt-0.5">💻</span>
+                  <div class="min-w-0">
+                    <div class="font-semibold text-slate-200 leading-tight flex items-center gap-1.5">
+                      <span>Colleague Devices</span>
+                      <span class="px-1.5 py-0.2 text-[9px] font-mono rounded bg-slate-800 text-cyan-300">200</span>
+                    </div>
+                    <div class="text-[10px] text-slate-400 leading-tight">Check antivirus, OS & device posture</div>
+                  </div>
+                </a>
+                <a href="#" class="nav-link flex items-start gap-2.5 px-3 py-2 rounded-lg transition text-slate-400 hover:text-slate-200 hover:bg-slate-800/40" data-page="alerts">
+                  <span class="text-base mt-0.5">🚨</span>
+                  <div class="min-w-0">
+                    <div class="font-semibold text-slate-200 leading-tight">Security Alerts</div>
+                    <div class="text-[10px] text-slate-400 leading-tight">Active threat & policy notifications</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <!-- CATEGORY 2: CONTROLS & FIXES -->
+            <div>
+              <div class="px-3 pb-1 text-[10px] font-extrabold uppercase tracking-wider text-amber-400/90 flex items-center justify-between">
+                <span>2. Security Controls & Fixes</span>
+                <span class="text-[9px] text-slate-500 font-normal">Actions</span>
+              </div>
+              <div class="space-y-1">
+                <a href="#" class="nav-link flex items-start gap-2.5 px-3 py-2 rounded-lg transition text-slate-400 hover:text-slate-200 hover:bg-slate-800/40" data-page="recommendations">
+                  <span class="text-base mt-0.5">💡</span>
+                  <div class="min-w-0">
+                    <div class="font-semibold text-slate-200 leading-tight">Remediation Plans</div>
+                    <div class="text-[10px] text-slate-400 leading-tight">1-click fixes to lower risk scores</div>
+                  </div>
+                </a>
+                <a href="#" class="nav-link flex items-start gap-2.5 px-3 py-2 rounded-lg transition text-slate-400 hover:text-slate-200 hover:bg-slate-800/40" data-page="policies">
+                  <span class="text-base mt-0.5">📋</span>
+                  <div class="min-w-0">
+                    <div class="font-semibold text-slate-200 leading-tight flex items-center gap-1.5">
+                      <span>Security Policies</span>
+                      <span class="px-1.5 py-0.2 text-[9px] font-mono rounded bg-slate-800 text-amber-300">19 Rules</span>
+                    </div>
+                    <div class="text-[10px] text-slate-400 leading-tight">Compliance rules (AV, encryption)</div>
+                  </div>
+                </a>
+                <a href="#" class="nav-link flex items-start gap-2.5 px-3 py-2 rounded-lg transition text-slate-400 hover:text-slate-200 hover:bg-slate-800/40" data-page="simulator">
+                  <span class="text-base mt-0.5">🎯</span>
+                  <div class="min-w-0">
+                    <div class="font-semibold text-slate-200 leading-tight">Access Simulator (ZTNA)</div>
+                    <div class="text-[10px] text-slate-400 leading-tight">Test if a computer can access apps</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <!-- CATEGORY 3: REPORTS & SETTINGS -->
+            <div>
+              <div class="px-3 pb-1 text-[10px] font-extrabold uppercase tracking-wider text-purple-400/90 flex items-center justify-between">
+                <span>3. Reports & Management</span>
+                <span class="text-[9px] text-slate-500 font-normal">Admin</span>
+              </div>
+              <div class="space-y-1">
+                <a href="#" class="nav-link flex items-start gap-2.5 px-3 py-2 rounded-lg transition text-slate-400 hover:text-slate-200 hover:bg-slate-800/40" data-page="import-export">
+                  <span class="text-base mt-0.5">📥</span>
+                  <div class="min-w-0">
+                    <div class="font-semibold text-slate-200 leading-tight">Ingestion & Reports</div>
+                    <div class="text-[10px] text-slate-400 leading-tight">Import CSV data & export reports</div>
+                  </div>
+                </a>
+                <div data-role-required="admin" class="space-y-1">
+                  <a href="#" class="nav-link flex items-start gap-2.5 px-3 py-2 rounded-lg transition text-slate-400 hover:text-slate-200 hover:bg-slate-800/40" data-page="users" data-role-required="admin">
+                    <span class="text-base mt-0.5">👥</span>
+                    <div class="min-w-0">
+                      <div class="font-semibold text-slate-200 leading-tight">Users & Roles</div>
+                      <div class="text-[10px] text-slate-400 leading-tight">Manage operator logins & roles</div>
+                    </div>
+                  </a>
+                  <a href="#" class="nav-link flex items-start gap-2.5 px-3 py-2 rounded-lg transition text-slate-400 hover:text-slate-200 hover:bg-slate-800/40" data-page="audit" data-role-required="admin">
+                    <span class="text-base mt-0.5">📜</span>
+                    <div class="min-w-0">
+                      <div class="font-semibold text-slate-200 leading-tight">Security Audit Log</div>
+                      <div class="text-[10px] text-slate-400 leading-tight">Tamper-evident trail of actions</div>
+                    </div>
+                  </a>
+                </div>
+                <a href="#" class="nav-link flex items-start gap-2.5 px-3 py-2 rounded-lg transition text-slate-400 hover:text-slate-200 hover:bg-slate-800/40" data-page="profile">
+                  <span class="text-base mt-0.5">⚙</span>
+                  <div class="min-w-0">
+                    <div class="font-semibold text-slate-200 leading-tight">Profile & 2FA</div>
+                    <div class="text-[10px] text-slate-400 leading-tight">Account settings & multi-factor</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+          </nav>
+        </div>
+
+        <!-- Sidebar User Footer -->
+        <div class="p-4 border-t border-slate-800/60 flex items-center justify-between text-xs">
+          <div>
+            <div id="header-user-name" class="font-bold text-slate-200 truncate max-w-[150px]">Operator</div>
+            <div id="header-user-email" class="text-slate-400 text-[10px] truncate max-w-[150px]">operator@sentineledge.io</div>
+          </div>
+          <button id="btn-logout" class="px-2.5 py-1 text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 rounded transition">
+            Exit
+          </button>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT VIEW -->
+      <main class="flex-1 overflow-y-auto bg-[#090d16] flex flex-col">
+        <!-- Top App Header -->
+        <div class="border-b border-slate-800/80 px-8 py-3.5 flex items-center justify-between bg-slate-900/40 backdrop-blur sticky top-0 z-20">
+          <div>
+            <h2 id="header-page-title" class="text-xl font-bold text-white tracking-tight">Security Posture Dashboard</h2>
+            <p id="header-page-subtitle" class="text-xs text-slate-400 mt-0.5">Live fleet score, compliance breakdown & risk metrics</p>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <span id="header-user-role" class="px-2 py-0.5 text-xs font-semibold rounded bg-purple-900/60 text-purple-300 border border-purple-500/40">ADMIN</span>
+            <button id="btn-toggle-theme" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-sm transition">
+              🌙
+            </button>
+          </div>
+        </div>
+
+        <!-- PAGE CONTAINER -->
+        <div class="p-8 flex-1 max-w-7xl w-full mx-auto space-y-8">
+
+          <!-- 1. DASHBOARD PAGE -->
+          <section id="page-dashboard" class="page-view space-y-6">
+            <!-- Security Posture Score & Letter Grade Banner -->
+            <div class="glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div class="flex items-center gap-6">
+                <div class="flex flex-col items-center justify-center w-24 h-24 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 border border-cyan-500/30 shadow-xl">
+                  <div class="text-[10px] uppercase font-bold text-slate-400">Posture Grade</div>
+                  <div id="stat-letter-grade" class="text-4xl font-black text-cyan-400">B</div>
+                </div>
+                <div>
+                  <h3 class="text-xl font-extrabold text-white">Enterprise Fleet Posture Index</h3>
+                  <p class="text-xs text-slate-400 mt-1 max-w-lg">Continuous telemetry evaluation against 19 Zero Trust baseline policies. Real-time composite risk aggregation across device health, network trust, and user context.</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-8 text-center">
+                <div>
+                  <div class="text-xs text-slate-400">Posture Score</div>
+                  <div id="stat-posture-score" class="text-2xl font-black text-cyan-400 font-mono">--/100</div>
+                </div>
+                <div>
+                  <div class="text-xs text-slate-400">Average Risk Index</div>
+                  <div id="stat-avg-risk" class="text-2xl font-black text-amber-400 font-mono">--</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 7 KPI Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
+              <div class="glass-panel p-4 rounded-xl border border-slate-800">
+                <span class="text-slate-400 text-xs block">Total Devices</span>
+                <span id="stat-total-devices" class="text-xl font-bold font-mono text-white mt-1 block">--</span>
+              </div>
+              <div class="glass-panel p-4 rounded-xl border border-slate-800">
+                <span class="text-slate-400 text-xs block">Fleet Compliance</span>
+                <span id="stat-compliance-pct" class="text-xl font-bold font-mono text-emerald-400 mt-1 block">--%</span>
+              </div>
+              <div class="glass-panel p-4 rounded-xl border border-slate-800">
+                <span class="text-slate-400 text-xs block">Critical Endpoints</span>
+                <span id="stat-critical-devices" class="text-xl font-bold font-mono text-rose-400 mt-1 block">--</span>
+              </div>
+              <div class="glass-panel p-4 rounded-xl border border-slate-800">
+                <span class="text-slate-400 text-xs block">Open Alerts</span>
+                <span id="stat-open-alerts" class="text-xl font-bold font-mono text-amber-400 mt-1 block">--</span>
+              </div>
+              <div class="glass-panel p-4 rounded-xl border border-slate-800">
+                <span class="text-slate-400 text-xs block">BYOD Endpoints</span>
+                <span id="stat-byod-pct" class="text-xl font-bold font-mono text-purple-400 mt-1 block">--%</span>
+              </div>
+              <div class="glass-panel p-4 rounded-xl border border-slate-800">
+                <span class="text-slate-400 text-xs block">Unpatched Endpoints</span>
+                <span id="stat-unpatched-pct" class="text-xl font-bold font-mono text-orange-400 mt-1 block">--%</span>
+              </div>
+              <div class="glass-panel p-4 rounded-xl border border-slate-800">
+                <span class="text-slate-400 text-xs block">Protected by EDR</span>
+                <span class="text-xl font-bold font-mono text-cyan-400 mt-1 block">85.5%</span>
+              </div>
+            </div>
+
+            <!-- 6 Chart.js Charts Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <!-- Chart 1: Risk Distribution -->
+              <div class="glass-panel p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
+                <div class="font-bold text-sm text-slate-200 mb-2">Endpoint Risk Level Breakdown</div>
+                <div class="h-48 relative">
+                  <canvas id="chart-risk-dist"></canvas>
+                </div>
+              </div>
+
+              <!-- Chart 2: Department Compliance -->
+              <div class="glass-panel p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
+                <div class="font-bold text-sm text-slate-200 mb-2">Compliance Rate by Department (%)</div>
+                <div class="h-48 relative">
+                  <canvas id="chart-dept-compliance"></canvas>
+                </div>
+              </div>
+
+              <!-- Chart 3: Risk Trend Over Time -->
+              <div class="glass-panel p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
+                <div class="font-bold text-sm text-slate-200 mb-2">Fleet Risk Trend (30-Day History)</div>
+                <div class="h-48 relative">
+                  <canvas id="chart-risk-trend"></canvas>
+                </div>
+              </div>
+
+              <!-- Chart 4: Top Failed Policies -->
+              <div class="glass-panel p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
+                <div class="font-bold text-sm text-slate-200 mb-2">Top Failed Security Policies</div>
+                <div class="h-48 relative">
+                  <canvas id="chart-top-policies"></canvas>
+                </div>
+              </div>
+
+              <!-- Chart 5: Network Risk -->
+              <div class="glass-panel p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
+                <div class="font-bold text-sm text-slate-200 mb-2">Risk Index by Connection Network</div>
+                <div class="h-48 relative">
+                  <canvas id="chart-network-risk"></canvas>
+                </div>
+              </div>
+
+              <!-- Chart 6: OS Distribution -->
+              <div class="glass-panel p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
+                <div class="font-bold text-sm text-slate-200 mb-2">Fleet Operating System Share</div>
+                <div class="h-48 relative">
+                  <canvas id="chart-os-dist"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Row: Top Riskiest Endpoints + Geolocation Anomalies -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <!-- Top Riskiest Endpoints Table -->
+              <div class="lg:col-span-2 glass-panel p-5 rounded-xl border border-slate-800">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="font-bold text-sm text-white">Top Priority Riskiest Endpoints</h3>
+                  <button class="text-xs text-cyan-400 hover:underline" onclick="App.navigate('devices')">View All Devices ➔</button>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left text-xs">
+                    <thead>
+                      <tr class="text-slate-400 border-b border-slate-800">
+                        <th class="py-2 px-3">Device ID</th>
+                        <th class="py-2 px-3">Endpoint & Owner</th>
+                        <th class="py-2 px-3">Risk Level</th>
+                        <th class="py-2 px-3">ZTNA Verdict</th>
+                        <th class="py-2 px-3 text-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="dashboard-riskiest-table"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Geolocation & Impossible Travel Anomalies -->
+              <div class="glass-panel p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-bold text-sm text-white flex items-center gap-2">
+                      <span>🌍</span> Geolocation Anomalies
+                    </h3>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800">Live</span>
+                  </div>
+                  <p class="text-xs text-slate-400 mb-3">Suspicious access from disparate geographies or flagged impossible travel.</p>
+                  <div id="dashboard-geo-anomalies" class="space-y-2"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 2. DEVICES PAGE -->
+          <section id="page-devices" class="page-view hidden space-y-4">
+            <!-- Explainable Helper Guide Banner -->
+            <div class="glass-panel p-4 rounded-xl border border-cyan-900/40 bg-gradient-to-r from-cyan-950/40 via-slate-900 to-slate-900 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-base">💻</span>
+                  <h3 class="font-bold text-sm text-white">Colleague Device Fleet & Endpoint Health</h3>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-cyan-950 text-cyan-300 border border-cyan-800">200 Endpoints Monitored</span>
+                </div>
+                <p class="text-xs text-slate-300 mt-1">Search any colleague by name, email, or device to check their <strong>Antivirus status</strong>, disk encryption, and security risk score.</p>
+              </div>
+              <div class="text-xs text-slate-400 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800">
+                <span>💡 Click any device row or the <strong class="text-cyan-300">Drawer ➔</strong> button to see full specs or apply 1-click fixes!</span>
+              </div>
+            </div>
+
+            <!-- Quick 1-Click Preset Filter Chips -->
+            <div class="glass-panel p-3.5 rounded-xl border border-slate-800 flex flex-wrap items-center gap-2 text-xs">
+              <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px] mr-1">⚡ Quick Filters:</span>
+              <button type="button" class="preset-btn px-3 py-1.5 rounded-lg font-semibold transition bg-cyan-950 border border-cyan-500/50 text-cyan-300 shadow-sm" data-preset="all">
+                🌐 All Devices (200)
+              </button>
+              <button type="button" class="preset-btn px-3 py-1.5 rounded-lg font-semibold transition bg-slate-900/90 hover:bg-rose-950/60 border border-slate-700 hover:border-rose-500/50 text-slate-300 hover:text-rose-300" data-preset="missing-av">
+                🛡️ ⚠️ Missing Antivirus
+              </button>
+              <button type="button" class="preset-btn px-3 py-1.5 rounded-lg font-semibold transition bg-slate-900/90 hover:bg-rose-950/60 border border-slate-700 hover:border-rose-500/50 text-slate-300 hover:text-rose-300" data-preset="critical-risk">
+                🚨 Critical Risk (70+)
+              </button>
+              <button type="button" class="preset-btn px-3 py-1.5 rounded-lg font-semibold transition bg-slate-900/90 hover:bg-amber-950/60 border border-slate-700 hover:border-amber-500/50 text-slate-300 hover:text-amber-300" data-preset="unencrypted">
+                🔓 Unencrypted Disk
+              </button>
+              <button type="button" class="preset-btn px-3 py-1.5 rounded-lg font-semibold transition bg-slate-900/90 hover:bg-amber-950/60 border border-slate-700 hover:border-amber-500/50 text-slate-300 hover:text-amber-300" data-preset="public-wifi">
+                📶 Public Wi-Fi
+              </button>
+              <button type="button" class="preset-btn px-3 py-1.5 rounded-lg font-semibold transition bg-slate-900/90 hover:bg-emerald-950/60 border border-slate-700 hover:border-emerald-500/50 text-slate-300 hover:text-emerald-300" data-preset="compliant">
+                ✅ Healthy & Compliant
+              </button>
+            </div>
+
+            <!-- Search and Detailed Filters -->
+            <div class="glass-panel p-4 rounded-xl border border-slate-800 flex flex-wrap items-center gap-3 text-xs">
+              <input type="text" id="devices-search" placeholder="🔍 Search colleague name, email, hostname, ID..." class="px-3.5 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-100 flex-1 min-w-[220px] focus:outline-none focus:border-cyan-500">
+
+              <select id="filter-status" class="px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-200">
+                <option value="">All Compliance Statuses</option>
+                <option value="Compliant">Compliant</option>
+                <option value="At Risk">At Risk</option>
+                <option value="Non-Compliant">Non-Compliant</option>
+              </select>
+
+              <select id="filter-risk" class="px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-200">
+                <option value="">All Risk Levels</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+                <option value="Critical">Critical</option>
+              </select>
+
+              <select id="filter-ownership" class="px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-200">
+                <option value="">All Ownership</option>
+                <option value="corporate">Corporate</option>
+                <option value="BYOD">BYOD</option>
+              </select>
+
+              <select id="filter-network" class="px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-200">
+                <option value="">All Networks</option>
+                <option value="home">Home</option>
+                <option value="public_wifi">Public Wi-Fi</option>
+                <option value="corporate_vpn">Corporate VPN</option>
+                <option value="mobile_hotspot">Mobile Hotspot</option>
+              </select>
+
+              <button class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-semibold rounded-lg border border-slate-700" onclick="App.navigate('import-export')">
+                📥 Export CSV
+              </button>
+            </div>
+
+            <!-- Devices Table -->
+            <div class="glass-panel rounded-xl border border-slate-800 overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-slate-900/80 border-b border-slate-800 text-slate-400 font-semibold">
+                    <tr>
+                      <th class="py-3 px-3">Device ID</th>
+                      <th class="py-3 px-3">Hostname & Owner</th>
+                      <th class="py-3 px-3">Ownership / OS</th>
+                      <th class="py-3 px-3">Compliance</th>
+                      <th class="py-3 px-3">Risk Index</th>
+                      <th class="py-3 px-3">Network Trust</th>
+                      <th class="py-3 px-3">ZTNA Verdict</th>
+                      <th class="py-3 px-3 text-right">Details</th>
+                    </tr>
+                  </thead>
+                  <tbody id="devices-table-body"></tbody>
+                </table>
+              </div>
+
+              <!-- Pagination Footer -->
+              <div class="p-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                <div id="devices-pagination-info">Showing devices...</div>
+                <div class="space-x-2">
+                  <button id="devices-prev" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded disabled:opacity-40">Previous</button>
+                  <button id="devices-next" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded disabled:opacity-40">Next</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3. ALERTS PAGE -->
+          <section id="page-alerts" class="page-view hidden space-y-4">
+            <!-- Explainable Helper Guide Banner -->
+            <div class="glass-panel p-4 rounded-xl border border-rose-900/40 bg-gradient-to-r from-rose-950/30 via-slate-900 to-slate-900 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-base">🚨</span>
+                  <h3 class="font-bold text-sm text-white">Live Threat Detection & Incident Triage</h3>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-950 text-rose-300 border border-rose-800">MITRE ATT&CK Mapped</span>
+                </div>
+                <p class="text-slate-300 mt-1">Review suspicious events and policy violations triggered by remote computers. Filter by severity or click an alert status to triage it.</p>
+              </div>
+              <div class="text-slate-400 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800">
+                <span>💡 SOC Workflow: Select checkboxes and change status to <strong>Investigating</strong> or <strong>Resolved</strong>.</span>
+              </div>
+            </div>
+
+            <!-- Filter & Bulk Actions Bar -->
+            <div class="glass-panel p-4 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div class="flex flex-wrap items-center gap-3 flex-1">
+                <input type="text" id="alerts-search" placeholder="Search alerts, MITRE technique, device..." class="px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-100 min-w-[220px] focus:outline-none focus:border-cyan-500">
+
+                <select id="alert-filter-status" class="px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-200">
+                  <option value="">All Statuses</option>
+                  <option value="Open">Open</option>
+                  <option value="Acknowledged">Acknowledged</option>
+                  <option value="Investigating">Investigating</option>
+                  <option value="Resolved">Resolved</option>
+                  <option value="False Positive">False Positive</option>
+                </select>
+
+                <select id="alert-filter-severity" class="px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-200">
+                  <option value="">All Severities</option>
+                  <option value="critical">Critical</option>
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                </select>
+              </div>
+
+              <!-- Bulk Update Control -->
+              <div class="flex items-center gap-2 border-t sm:border-t-0 pt-2 sm:pt-0 w-full sm:w-auto justify-end" data-role-required="admin,analyst">
+                <span class="text-slate-400"><span id="alerts-selected-count">0</span> selected</span>
+                <select id="alerts-bulk-status-select" class="px-2 py-1.5 rounded bg-slate-900 border border-slate-700 text-slate-200">
+                  <option value="Acknowledged">Mark Acknowledged</option>
+                  <option value="Investigating">Mark Investigating</option>
+                  <option value="Resolved">Mark Resolved</option>
+                  <option value="False Positive">Mark False Positive</option>
+                </select>
+                <button id="btn-alerts-bulk-update" disabled class="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-40 text-white font-semibold rounded transition">
+                  Apply Bulk
+                </button>
+              </div>
+            </div>
+
+            <!-- Alerts Table -->
+            <div class="glass-panel rounded-xl border border-slate-800 overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-slate-900/80 border-b border-slate-800 text-slate-400 font-semibold">
+                    <tr>
+                      <th class="py-3 px-3 w-8">
+                        <input type="checkbox" id="alerts-select-all" class="rounded bg-slate-900 border-slate-700 text-cyan-500">
+                      </th>
+                      <th class="py-3 px-3">Alert ID</th>
+                      <th class="py-3 px-3">Severity</th>
+                      <th class="py-3 px-3">Threat Description & MITRE Technique</th>
+                      <th class="py-3 px-3">Device ID</th>
+                      <th class="py-3 px-3">Status</th>
+                      <th class="py-3 px-3 text-right">Update Workflow</th>
+                    </tr>
+                  </thead>
+                  <tbody id="alerts-table-body"></tbody>
+                </table>
+              </div>
+
+              <div class="p-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                <div id="alerts-pagination-info">Showing alerts...</div>
+                <div class="space-x-2">
+                  <button id="alerts-prev" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded disabled:opacity-40">Previous</button>
+                  <button id="alerts-next" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded disabled:opacity-40">Next</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 4. POLICIES PAGE -->
+          <section id="page-policies" class="page-view hidden space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-base font-bold text-white">Zero Trust Security Policies (19 Active)</h3>
+                <p class="text-xs text-slate-400">Admin operators can configure weights, adjust compliance parameters, and trigger vectorized fleet re-evaluations.</p>
+              </div>
+              <div class="flex items-center gap-2" data-role-required="admin">
+                <button id="btn-policies-reset" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold border border-slate-700 transition">
+                  Reset Defaults
+                </button>
+                <button id="btn-policies-reevaluate" class="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-semibold shadow-lg shadow-cyan-950/50 transition">
+                  ⚡ Re-evaluate Fleet
+                </button>
+              </div>
+            </div>
+
+            <!-- Policies Cards Grid -->
+            <div id="policies-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+          </section>
+
+          <!-- 5. RECOMMENDATIONS PAGE -->
+          <section id="page-recommendations" class="page-view hidden space-y-6">
+            <div>
+              <h3 class="text-base font-bold text-white">Top 10 Fleet-Wide Remediation Actions</h3>
+              <p class="text-xs text-slate-400">Ranked by total fleet risk reduction points to provide high-impact corrective guidance.</p>
+            </div>
+
+            <!-- Fleet Top 10 List -->
+            <div id="fleet-recommendations-list" class="space-y-3"></div>
+
+            <!-- Per-Device Remediation Plan Explorer -->
+            <div class="pt-6 border-t border-slate-800 space-y-4">
+              <div>
+                <h3 class="text-base font-bold text-white">Per-Device Corrective Action Plan & Projected Scores</h3>
+                <p class="text-xs text-slate-400">Select any endpoint to inspect its prioritized remediation plan and simulated post-fix risk score.</p>
+              </div>
+
+              <div class="max-w-md">
+                <select id="recs-device-select" class="w-full px-3.5 py-2.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-cyan-500"></select>
+              </div>
+
+              <div id="single-device-rec-container"></div>
+            </div>
+          </section>
+
+          <!-- 6. ACCESS SIMULATOR PAGE (ZTNA) -->
+          <section id="page-simulator" class="page-view hidden space-y-6">
+            <!-- Explainable Helper Guide Banner -->
+            <div class="glass-panel p-4 rounded-xl border border-cyan-900/40 bg-gradient-to-r from-cyan-950/30 via-slate-900 to-slate-900 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-base">🎯</span>
+                  <h3 class="font-bold text-sm text-white">Zero Trust Access Simulator (ZTNA)</h3>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-cyan-950 text-cyan-300 border border-cyan-800">Sandbox Test Bench</span>
+                </div>
+                <p class="text-slate-300 mt-1">Simulate what happens when an employee attempts to connect to corporate tools. Test whether their device gets <strong>ALLOWED</strong>, prompted for <strong>MFA</strong>, or <strong>BLOCKED</strong> based on their posture.</p>
+              </div>
+              <div class="text-slate-400 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800">
+                <span>💡 Step: Pick a computer and a corporate app, then click <strong>Evaluate Access Verdict</strong>.</span>
+              </div>
+            </div>
+
+            <!-- Simulator Controls -->
+            <div class="glass-panel p-6 rounded-2xl border border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1.5">Select Remote Endpoint</label>
+                <select id="ztna-sim-device" class="w-full px-3 py-2.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-cyan-500"></select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1.5">Target Enterprise Resource</label>
+                <select id="ztna-sim-resource" class="w-full px-3 py-2.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-cyan-500"></select>
+              </div>
+
+              <button id="btn-evaluate-ztna" class="w-full py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold text-xs rounded-lg shadow-lg shadow-cyan-950/50 transition">
+                ⚡ Evaluate Access Verdict
+              </button>
+            </div>
+
+            <!-- Dynamic Result Container -->
+            <div id="ztna-result-container"></div>
+          </section>
+
+          <!-- 7. IMPORT / EXPORT PAGE -->
+          <section id="page-import-export" class="page-view hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Ingestion Card -->
+              <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-4">
+                <div>
+                  <h3 class="font-bold text-white text-base">Ingest Telemetry (CSV / JSON)</h3>
+                  <p class="text-xs text-slate-400">Drag & drop new endpoint data. Pandas automatically validates schema, detects duplicates, and upserts devices.</p>
+                </div>
+
+                <div id="import-drop-zone" class="border-2 border-dashed border-slate-700 hover:border-cyan-500 rounded-xl p-8 text-center cursor-pointer transition bg-slate-900/40">
+                  <input type="file" id="import-file-input" accept=".csv,.json" class="hidden">
+                  <div class="text-3xl mb-2">📂</div>
+                  <div class="text-sm font-semibold text-slate-200">Click to upload or drag files here</div>
+                  <div class="text-xs text-slate-400 mt-1">Accepts CSV or JSON endpoint telemetry schemas</div>
+                </div>
+
+                <div class="flex items-center justify-between pt-2">
+                  <button id="btn-download-template" class="text-xs text-cyan-400 hover:underline">
+                    📥 Download CSV Template
+                  </button>
+                </div>
+
+                <div id="import-summary-box" class="hidden"></div>
+              </div>
+
+              <!-- Export Reports Card -->
+              <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-4 flex flex-col justify-between">
+                <div>
+                  <h3 class="font-bold text-white text-base">Export Posture Reports</h3>
+                  <p class="text-xs text-slate-400">Generate executive cybersecurity posture summaries and raw telemetry dumps.</p>
+                </div>
+
+                <div class="space-y-3">
+                  <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+                    <div>
+                      <div class="font-semibold text-sm text-slate-200">Raw Posture Fleet Dump</div>
+                      <div class="text-xs text-slate-400">Full telemetry attributes with evaluated risk scores and ZTNA decisions.</div>
+                    </div>
+                    <button id="btn-export-csv" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-semibold text-xs rounded-lg border border-slate-700">
+                      Download CSV
+                    </button>
+                  </div>
+
+                  <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+                    <div>
+                      <div class="font-semibold text-sm text-slate-200">Executive PDF Posture Report</div>
+                      <div class="text-xs text-slate-400">Formatted board-level summary with KPI tables and recommendations.</div>
+                    </div>
+                    <button id="btn-export-pdf" class="px-3.5 py-2 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-semibold text-xs rounded-lg shadow-lg shadow-rose-950/50">
+                      Generate PDF
+                    </button>
+                  </div>
+                </div>
+
+                <div class="text-xs text-slate-500">
+                  Reports generated in real time against active SQLite database.
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 8. USERS & ROLES PAGE (ADMIN ONLY) -->
+          <section id="page-users" class="page-view hidden space-y-4" data-role-required="admin">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-base font-bold text-white">User & Role Management</h3>
+                <p class="text-xs text-slate-400">Manage console operators, assign RBAC roles (admin, analyst, viewer), and unlock accounts.</p>
+              </div>
+            </div>
+
+            <div class="glass-panel rounded-xl border border-slate-800 overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-slate-900/80 border-b border-slate-800 text-slate-400 font-semibold">
+                    <tr>
+                      <th class="py-3 px-3">User ID</th>
+                      <th class="py-3 px-3">Name & Email</th>
+                      <th class="py-3 px-3">Role</th>
+                      <th class="py-3 px-3">Status</th>
+                      <th class="py-3 px-3">Lockout State</th>
+                      <th class="py-3 px-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="users-table-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- 9. AUDIT LOG PAGE (ADMIN ONLY) -->
+          <section id="page-audit" class="page-view hidden space-y-4" data-role-required="admin">
+            <div class="glass-panel p-4 rounded-xl border border-slate-800 flex flex-wrap items-center gap-3 text-xs">
+              <input type="text" id="audit-search" placeholder="Search audit trail..." class="px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-100 flex-1 min-w-[200px] focus:outline-none focus:border-cyan-500">
+
+              <select id="audit-filter-action" class="px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-200">
+                <option value="">All Security Events</option>
+                <option value="LOGIN_SUCCESS">LOGIN_SUCCESS</option>
+                <option value="LOGIN_FAILED">LOGIN_FAILED</option>
+                <option value="DEVICE_REMEDIATION">DEVICE_REMEDIATION</option>
+                <option value="POLICY_UPDATED">POLICY_UPDATED</option>
+                <option value="DATA_IMPORT">DATA_IMPORT</option>
+                <option value="USER_ROLE_CHANGED">USER_ROLE_CHANGED</option>
+              </select>
+            </div>
+
+            <div class="glass-panel rounded-xl border border-slate-800 overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-slate-900/80 border-b border-slate-800 text-slate-400 font-semibold">
+                    <tr>
+                      <th class="py-3 px-3">Timestamp (UTC)</th>
+                      <th class="py-3 px-3">Action</th>
+                      <th class="py-3 px-3">Operator</th>
+                      <th class="py-3 px-3">Client IP</th>
+                      <th class="py-3 px-3">Details</th>
+                    </tr>
+                  </thead>
+                  <tbody id="audit-table-body"></tbody>
+                </table>
+              </div>
+
+              <div class="p-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                <div id="audit-pagination-info">Showing audit logs...</div>
+                <div class="space-x-2">
+                  <button id="audit-prev" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded disabled:opacity-40">Previous</button>
+                  <button id="audit-next" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded disabled:opacity-40">Next</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 10. PROFILE PAGE -->
+          <section id="page-profile" class="page-view hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Profile Info & MFA Card -->
+              <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-4">
+                <div>
+                  <h3 class="font-bold text-white text-base">Operator Identity & MFA</h3>
+                  <p class="text-xs text-slate-400">Hardware & TOTP Two-Factor Authentication</p>
+                </div>
+
+                <div class="space-y-3 text-xs">
+                  <div class="p-3 rounded bg-slate-900/60 border border-slate-800">
+                    <span class="text-slate-400 block">Operator Full Name</span>
+                    <span id="profile-name" class="font-semibold text-slate-200 text-sm">--</span>
+                  </div>
+                  <div class="p-3 rounded bg-slate-900/60 border border-slate-800">
+                    <span class="text-slate-400 block">Assigned Email</span>
+                    <span id="profile-email" class="font-semibold text-slate-200 text-sm">--</span>
+                  </div>
+                  <div class="p-3 rounded bg-slate-900/60 border border-slate-800">
+                    <span class="text-slate-400 block">Console Privilege Role</span>
+                    <span id="profile-role" class="font-semibold text-cyan-400 font-mono text-sm">--</span>
+                  </div>
+                </div>
+
+                <!-- MFA Controls -->
+                <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+                  <div>
+                    <div class="text-xs font-semibold text-slate-300">TOTP Authenticator (2FA)</div>
+                    <div id="profile-mfa-status" class="text-xs text-slate-400">Checking...</div>
+                  </div>
+                  <button id="btn-toggle-mfa" class="px-3 py-1.5 rounded-lg text-xs font-semibold">
+                    Setup 2FA
+                  </button>
+                </div>
+              </div>
+
+              <!-- Change Password Card -->
+              <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-4">
+                <div>
+                  <h3 class="font-bold text-white text-base">Change Password</h3>
+                  <p class="text-xs text-slate-400">Enforce enterprise complexity (10+ characters, upper, lower, digit, symbol).</p>
+                </div>
+
+                <form id="profile-password-form" class="space-y-3">
+                  <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Current Password</label>
+                    <input type="password" id="profile-old-pwd" required class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-cyan-500">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">New Strong Password</label>
+                    <input type="password" id="profile-new-pwd" required class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-cyan-500">
+                  </div>
+                  <button type="submit" class="w-full py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs rounded-lg shadow-lg shadow-cyan-950/50 transition">
+                    Update Password
+                  </button>
+                </form>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- ================= DEVICE DRAWER (SLIDE-OVER) ================= -->
+  <div id="device-drawer" class="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm hidden" onclick="DevicesPage.closeDrawer()">
+    <div class="w-full max-w-2xl bg-[#0b101b] border-l border-slate-800 h-full overflow-y-auto shadow-2xl relative" onclick="event.stopPropagation()">
+      <button class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg p-2" onclick="DevicesPage.closeDrawer()">✕</button>
+      <div id="device-drawer-content"></div>
+    </div>
+  </div>
+
+  <!-- ================= MODALS ================= -->
+  <!-- Policy Parameters Modal -->
+  <div id="policy-params-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm hidden">
+    <div class="w-full max-w-lg glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 id="policy-params-title" class="font-bold text-white text-sm">Policy Parameters</h3>
+        <button class="text-slate-400 hover:text-white" onclick="document.getElementById('policy-params-modal').classList.add('hidden')">✕</button>
+      </div>
+      <p class="text-xs text-slate-400">Edit JSON parameter thresholds. Modifying parameters immediately re-evaluates all endpoints.</p>
+      <textarea id="policy-params-json" rows="6" class="w-full p-3 font-mono text-xs rounded-lg bg-slate-900 border border-slate-700 text-cyan-300 focus:outline-none focus:border-cyan-500"></textarea>
+      <div class="flex justify-end gap-2">
+        <button class="px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded" onclick="document.getElementById('policy-params-modal').classList.add('hidden')">Cancel</button>
+        <button id="btn-save-policy-params" class="px-3.5 py-1.5 text-xs bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded">Save & Re-evaluate</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MFA Login Code Prompt Modal -->
+  <div id="mfa-login-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm hidden">
+    <div class="w-full max-w-md glass-panel p-6 rounded-2xl border border-cyan-500/50 space-y-4">
+      <div class="text-center">
+        <div class="text-3xl mb-1">🔐</div>
+        <h3 class="font-bold text-white text-lg">Two-Factor Authentication</h3>
+        <p class="text-xs text-slate-400 mt-1">Enter the 6-digit TOTP code from your authenticator app to complete sign-in.</p>
+      </div>
+      <input type="text" id="mfa-login-code" maxlength="6" autofocus placeholder="000000" class="w-full py-3 text-center tracking-[0.5em] font-mono text-2xl rounded-lg bg-slate-900 border border-cyan-500/50 text-cyan-300 focus:outline-none">
+      <div class="flex gap-2">
+        <button class="w-1/2 py-2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg" onclick="document.getElementById('mfa-login-modal').classList.add('hidden')">Cancel</button>
+        <button id="mfa-login-submit" class="w-1/2 py-2 text-xs bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-lg">Verify & Enter</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MFA Setup Modal -->
+  <div id="profile-mfa-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm hidden">
+    <div class="w-full max-w-md glass-panel p-6 rounded-2xl border border-slate-800 space-y-4 text-center">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <h3 class="font-bold text-white text-sm">Scan QR Code with Authenticator App</h3>
+        <button class="text-slate-400 hover:text-white" onclick="document.getElementById('profile-mfa-modal').classList.add('hidden')">✕</button>
+      </div>
+      <div class="p-3 bg-white rounded-xl inline-block shadow-lg mx-auto">
+        <img id="mfa-qr-image" src="" alt="MFA QR Code" class="w-48 h-48">
+      </div>
+      <div class="text-xs text-slate-400">
+        Manual Secret: <code id="mfa-secret-text" class="text-cyan-400 select-all font-mono font-bold"></code>
+      </div>
+      <input type="text" id="mfa-verify-code" maxlength="6" placeholder="Enter 6-digit code to verify" class="w-full py-2 px-3 text-center font-mono tracking-widest rounded-lg bg-slate-900 border border-slate-700 text-cyan-300 text-sm focus:outline-none">
+      <button id="btn-verify-mfa-setup" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs rounded-lg shadow-lg shadow-emerald-950/50">
+        Verify & Activate 2FA
+      </button>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div id="forgot-password-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm hidden">
+    <div class="w-full max-w-md glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <h3 class="font-bold text-white text-sm">Password Reset Service</h3>
+        <button class="text-slate-400 hover:text-white" onclick="document.getElementById('forgot-password-modal').classList.add('hidden')">✕</button>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Account Email</label>
+          <div class="flex gap-2">
+            <input type="email" id="forgot-email" placeholder="admin@sentineledge.io" class="flex-1 px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-100 text-xs focus:outline-none focus:border-cyan-500">
+            <button id="btn-request-reset" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded-lg text-xs font-semibold whitespace-nowrap">
+              Generate Token
+            </button>
+          </div>
+        </div>
+
+        <!-- Banner showing token for demo convenience -->
+        <div id="forgot-token-banner" class="hidden p-3 rounded-lg bg-cyan-950/40 border border-cyan-800 text-xs space-y-1">
+          <span class="font-bold text-cyan-300">Demo Reset Token Generated:</span>
+          <div id="forgot-token-display" class="font-mono text-[11px] text-slate-300 break-all select-all"></div>
+        </div>
+
+        <div class="pt-2 border-t border-slate-800 space-y-2">
+          <label class="block text-xs font-medium text-slate-300">Complete Reset with Token</label>
+          <input type="text" id="reset-token-input" placeholder="Paste reset token" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-100 text-xs focus:outline-none font-mono">
+          <input type="password" id="reset-new-password" placeholder="New strong password" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-100 text-xs focus:outline-none">
+          <button id="btn-perform-reset" class="w-full py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs rounded-lg">
+            Reset Password
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Javascript Modules -->
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/state.js"></script>
+  <script src="/static/js/pages/auth.js"></script>
+  <script src="/static/js/pages/dashboard.js"></script>
+  <script src="/static/js/pages/devices.js"></script>
+  <script src="/static/js/pages/alerts.js"></script>
+  <script src="/static/js/pages/policies.js"></script>
+  <script src="/static/js/pages/recommendations.js"></script>
+  <script src="/static/js/pages/simulator.js"></script>
+  <script src="/static/js/pages/import_export.js"></script>
+  <script src="/static/js/pages/users.js"></script>
+  <script src="/static/js/pages/audit.js"></script>
+  <script src="/static/js/pages/profile.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
